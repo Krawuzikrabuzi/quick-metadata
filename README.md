@@ -3,7 +3,7 @@ small program to get specific metadata from image files
 
 
 ## Installation
-- Download latest release
+- Download latest Release_v*.zip
 - unzip programm folder
 - run install.ps1 as admin
 
