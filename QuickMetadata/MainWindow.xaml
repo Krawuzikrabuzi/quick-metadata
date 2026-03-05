@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:QuickMetadata"
         mc:Ignorable="d"
-        Title="QuickMetadata" Height="Auto" Width="620"
+        Title="QuickMetadata" Height="Auto" Width="620" ResizeMode="CanResize"
         Background="#1a1a1a"
         Foreground="#e0e0e0"
         FontFamily="Segoe UI">
@@ -81,6 +81,7 @@
             <Setter Property="Padding"           Value="0 4"/>
             <Setter Property="VerticalAlignment" Value="Center"/>
         </Style>
+
     </Window.Resources>
     
     <Grid Margin="10">
@@ -109,6 +110,7 @@
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="140"/>
@@ -124,9 +126,13 @@
             <Label Grid.Row="1" Grid.Column="0" Content="Drone Model"/>
             <TextBox Grid.Row="1" Grid.Column="1" x:Name="tb_DroneModel" IsReadOnly="True" MouseDoubleClick="TextBox_DoubleClick"/>
 
-            <Label Grid.Row="2" Grid.Column="0" Content="Date/Time"/>
-            <TextBox Grid.Row="2" Grid.Column="1" x:Name="tb_DateTime" IsReadOnly="True" MouseDoubleClick="TextBox_DoubleClick"/>
-
+            <Label Grid.Row="2" Grid.Column="0" Content="Date/Time" ToolTip="Copy Date and Time" MouseDoubleClick="DateTimeLabel_DoubleClick" Cursor="Hand"/>
+            <StackPanel Grid.Row="2" Grid.Column="1" Orientation="Horizontal">
+                <TextBox x:Name="tb_Date" IsReadOnly="True" Width="90" MouseDoubleClick="TextBox_DoubleClick"/>
+                <Label Content="/" Padding="2, 0, 0, 0"/>
+                <TextBox x:Name="tb_Time" IsReadOnly="True" Width="75" Margin="4 0 0 0" MouseDoubleClick="TextBox_DoubleClick"/>
+            </StackPanel>
+            
             <Label Grid.Row="3" Grid.Column="0" Content="Altitude Type"/>
             <TextBox Grid.Row="3" Grid.Column="1" x:Name="tb_AltitudeType" IsReadOnly="True" MouseDoubleClick="TextBox_DoubleClick"/>
 
@@ -136,13 +142,21 @@
             <Label Grid.Row="5" Grid.Column="0" Content="Relative Altitude"/>
             <TextBox Grid.Row="5" Grid.Column="1" x:Name="tb_RelativeAltitude" IsReadOnly="True" MouseDoubleClick="TextBox_DoubleClick"/>
 
-            <Label Grid.Row="6" Grid.Column="0" Content="Coordinates" FontWeight="Bold" MouseDoubleClick="CoordinatesLabel_DoubleClick"/>
+            <Label Grid.Row="6" Grid.Column="0" Content="Coordinates" ToolTip="Copy Latitude and Longitude" FontWeight="Bold" MouseDoubleClick="CoordinatesLabel_DoubleClick" Cursor="Hand"/>
 
             <Label Grid.Row="7" Grid.Column="0" Content="Latitude"/>
             <TextBox Grid.Row="7" Grid.Column="1" x:Name="tb_Latitude" IsReadOnly="True" MouseDoubleClick="TextBox_DoubleClick"/>
 
             <Label Grid.Row="8" Grid.Column="0" Content="Longitude"/>
             <TextBox Grid.Row="8" Grid.Column="1" x:Name="tb_Longitude" IsReadOnly="True" MouseDoubleClick="TextBox_DoubleClick"/>
+
+            <Image Grid.Row="9" Grid.Column="0" Grid.ColumnSpan="2"
+                   x:Name="img_Preview"
+                   MaxHeight="200"
+                   Margin="0 8 0 8"
+                   Stretch="Uniform"
+                   HorizontalAlignment="Center"/>
+
         </Grid>
     </Grid>
 </Window>

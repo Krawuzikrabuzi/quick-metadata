@@ -12,4 +12,8 @@
     <PackageReference Include="MetadataExtractor" Version="2.9.0" />
   </ItemGroup>
 
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+    <Exec Command="reg add &quot;HKCU\SOFTWARE\Classes\SystemFileAssociations\.jpg\shell\QuickMetadata&quot; /ve /d &quot;Metadaten anzeigen&quot; /f&#xA;reg add &quot;HKCU\SOFTWARE\Classes\SystemFileAssociations\.jpg\shell\QuickMetadata&quot; /v &quot;MultiSelectModel&quot; /d &quot;Player&quot; /f&#xA;reg add &quot;HKCU\SOFTWARE\Classes\SystemFileAssociations\.jpg\shell\QuickMetadata\command&quot; /ve /d &quot;\&quot;$(TargetDir)$(ProjectName).exe\&quot; \&quot;%25%251\&quot;&quot; /f&#xA;reg add &quot;HKCU\SOFTWARE\Classes\Directory\shell\QuickMetadata&quot; /ve /d &quot;Metadaten anzeigen (alle JPGs)&quot; /f&#xA;reg add &quot;HKCU\SOFTWARE\Classes\Directory\shell\QuickMetadata\command&quot; /ve /d &quot;\&quot;$(TargetDir)$(ProjectName).exe\&quot; /folder \&quot;%25%251\&quot;&quot; /f" />
+  </Target>
+
 </Project>

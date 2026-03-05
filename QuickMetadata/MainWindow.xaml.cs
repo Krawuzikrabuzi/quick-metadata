@@ -3,6 +3,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
+using System.Windows.Media.Imaging;
 
 namespace QuickMetadata
 {
@@ -22,11 +23,73 @@ namespace QuickMetadata
         // Kleines Model für die ListBox
         private record FileEntry(string FileName, string FilePath, Dictionary<string, string> Fields);
 
-        public MainWindow()
+        public MainWindow(string[] args)
         {
             InitializeComponent();
-            TestExtractor();
+
+            if (args.Length == 0)
+            {
+                TestExtractor();
+                return;
+            }
+
+            if (args.Length == 2 && args[0] == "/folder")
+            {
+                var jpgFiles = Directory.GetFiles(args[1], "*.jpg", SearchOption.TopDirectoryOnly)
+                                            .DistinctBy(f => f.ToLowerInvariant())
+                                            .ToArray();
+                LoadFiles(jpgFiles);
+            }
+            else
+            {
+                LoadFiles(args);
+            }
+
+
         }
+
+        public void AddFiles(string message)
+        {
+            string[] newPaths;
+
+            if (message.StartsWith("/folder|"))
+            {
+                var folder = message["/folder|".Length..];
+                newPaths = Directory.GetFiles(folder, "*.jpg", SearchOption.TopDirectoryOnly)
+                                    .Concat(Directory.GetFiles(folder, "*.JPG", SearchOption.TopDirectoryOnly))
+                                    .ToArray();
+            }
+            else
+            {
+                newPaths = [message];
+            }
+
+            var existing = lb_FileList.ItemsSource as IEnumerable<FileEntry> ?? [];
+            var existingPaths = existing.Select(e => e.FilePath).ToHashSet();
+            var toAdd = newPaths.Where(p => !existingPaths.Contains(p)).ToArray();
+
+            if (toAdd.Length == 0) return;
+
+            var results = Extractor.ExtractFromFiles(toAdd, tags);
+            var newEntries = toAdd
+                .Zip(results, (path, fields) => new FileEntry(Path.GetFileName(path), path, fields))
+                .ToList();
+
+            lb_FileList.ItemsSource = existing.Concat(newEntries).ToList();
+        }
+
+
+        private void LoadFiles(string[] filePaths)
+        {
+            var results = Extractor.ExtractFromFiles(filePaths, tags);
+            var entries = filePaths
+                .Zip(results, (path, fields) => new FileEntry(Path.GetFileName(path), path, fields))
+                .ToList();
+
+            lb_FileList.ItemsSource = entries;
+            lb_FileList.SelectedIndex = 0;
+        }
+
 
         private void TestExtractor()
         {
@@ -56,18 +119,50 @@ namespace QuickMetadata
             {
                 lb_ImageName.Content = entry.FileName;
                 PopulateFields(entry.Fields);
+                LoadPreview(entry.FilePath);
             }
+        }
+
+
+        private static string StripSign(string value) => value.TrimStart('+', '-');
+
+        private static string FormatDateTime(string raw)
+        {
+            if (DateTime.TryParseExact(raw, "yyyy:MM:dd HH:mm:ss",
+                    System.Globalization.CultureInfo.InvariantCulture,
+                    System.Globalization.DateTimeStyles.None,
+                    out var dt))
+                return dt.ToString("dd.MM.yyyy  HH:mm:ss");
+
+            if (DateTime.TryParse(raw, out dt))
+                return dt.ToString("dd.MM.yyyy  HH:mm:ss");
+
+            return raw;
         }
 
         private void PopulateFields(Dictionary<string, string> fields)
         {
             tb_DroneModel.Text = fields["drone-dji:DroneModel"];
-            tb_DateTime.Text = fields["Date/Time Original"];
+            var raw = fields["Date/Time Original"];
+            if (DateTime.TryParseExact(raw, "yyyy:MM:dd HH:mm:ss",
+                    System.Globalization.CultureInfo.InvariantCulture,
+                    System.Globalization.DateTimeStyles.None, out var dt)
+                || DateTime.TryParse(raw, out dt))
+            {
+                tb_Date.Text = dt.ToString("dd.MM.yyyy");
+                tb_Time.Text = dt.ToString("HH:mm:ss");
+            }
+            else
+            {
+                tb_Date.Text = raw;
+                tb_Time.Text = "";
+            }
+
             tb_AltitudeType.Text = fields["drone-dji:AltitudeType"];
-            tb_AbsoluteAltitude.Text = fields["drone-dji:AbsoluteAltitude"];
-            tb_RelativeAltitude.Text = fields["drone-dji:RelativeAltitude"];
-            tb_Latitude.Text = fields["drone-dji:GpsLatitude"];
-            tb_Longitude.Text = fields["drone-dji:GpsLongitude"];
+            tb_AbsoluteAltitude.Text = StripSign(fields["drone-dji:AbsoluteAltitude"]);
+            tb_RelativeAltitude.Text = StripSign(fields["drone-dji:RelativeAltitude"]);
+            tb_Latitude.Text = StripSign(fields["drone-dji:GpsLatitude"]);
+            tb_Longitude.Text = StripSign(fields["drone-dji:GpsLongitude"]);
         }
 
         private async void TextBox_DoubleClick(object sender, MouseButtonEventArgs e)
@@ -88,6 +183,15 @@ namespace QuickMetadata
             await FlashCopied(tb_Latitude, tb_Longitude);
         }
 
+        private async void DateTimeLabel_DoubleClick(object sender, MouseButtonEventArgs e)
+        {
+            if (string.IsNullOrEmpty(tb_Date.Text) || string.IsNullOrEmpty(tb_Time.Text))
+                return;
+
+            Clipboard.SetText($"{tb_Date.Text} {tb_Time.Text}");
+            await FlashCopied(tb_Date, tb_Time);
+        }
+
         private async Task FlashCopied(params TextBox[] textBoxes)
         {
             var originals = textBoxes.Select(tb => (bg: tb.Background, fg: tb.Foreground)).ToList();
@@ -106,6 +210,25 @@ namespace QuickMetadata
                 textBoxes[i].Foreground = originals[i].fg;
             }
         }
+
+        private void LoadPreview(string filePath)
+        {
+            try
+            {
+                var bitmap = new BitmapImage();
+                bitmap.BeginInit();
+                bitmap.UriSource = new Uri(filePath);
+                bitmap.DecodePixelWidth = 500;
+                bitmap.CacheOption = BitmapCacheOption.OnLoad;
+                bitmap.EndInit();
+                img_Preview.Source = bitmap;
+            }
+            catch
+            {
+                img_Preview.Source = null;
+            }
+        }
+
 
     }
 }
