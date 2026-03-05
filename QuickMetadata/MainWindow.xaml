@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:QuickMetadata"
         mc:Ignorable="d"
-        Title="QuickMetadata" Height="Auto" Width="620" ResizeMode="CanResize"
+        Title="QuickMetadata" Height="600" Width="620" ResizeMode="CanResize"
         Background="#1a1a1a"
         Foreground="#e0e0e0"
         FontFamily="Segoe UI">

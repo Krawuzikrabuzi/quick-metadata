@@ -93,14 +93,17 @@ namespace QuickMetadata
 
         private void TestExtractor()
         {
+
+            string baseDir = Path.GetFullPath(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"..\..\..\..\"));
+
             string[] filePaths =
             [
-                 @"C:\Users\R_Dev\Documents\GitHub\quick-metadata\TestFiles\570211A Panos\570211A Panos\TestPhoto_1.JPG",
-                @"C:\Users\R_Dev\Documents\GitHub\quick-metadata\TestFiles\570211A Panos\570211A Panos\TestPhoto_2.JPG",
-                @"C:\Users\R_Dev\Documents\GitHub\quick-metadata\TestFiles\570211A Panos\570211A Panos\TestPhoto_3.JPG",
-                @"C:\Users\R_Dev\Documents\GitHub\quick-metadata\TestFiles\570211A Panos\570211A Panos\TestPhoto_4.JPG",
-                @"C:\Users\R_Dev\Documents\GitHub\quick-metadata\TestFiles\570211A Panos\570211A Panos\TestPhoto_5.JPG",
-                @"C:\Users\R_Dev\Documents\GitHub\quick-metadata\TestFiles\570211A Panos\570211A Panos\TestPhoto_6.JPG",
+                Path.Combine(baseDir, @"TestFiles\570211A Panos\TestPhoto_1.JPG"),
+                Path.Combine(baseDir, @"TestFiles\570211A Panos\TestPhoto_2.JPG"),
+                Path.Combine(baseDir, @"TestFiles\570211A Panos\TestPhoto_3.JPG"),
+                Path.Combine(baseDir, @"TestFiles\570211A Panos\TestPhoto_4.JPG"),
+                Path.Combine(baseDir, @"TestFiles\570211A Panos\TestPhoto_5.JPG"),
+                Path.Combine(baseDir, @"TestFiles\570211A Panos\TestPhoto_6.JPG"),
             ];
 
             var results = Extractor.ExtractFromFiles(filePaths, tags);
